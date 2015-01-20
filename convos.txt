@@ -1,0 +1,14 @@
+———————————————————————————
+Notes from 1/20/2015:
+
+1. ScriptMenu will have saved sessions included in the script list.
+2. Carousel for SessionScreen only 
+3. drag and drop of scripts from ScriptMenu to SessionScreen should remove the dragged script from the ScriptMenu and place it at the end of the script list (so that it’s obvious to the user that the scrip was indeed dragged and dropped). Failed drops should revert to original position.
+4. Use jqueryUI draggable/droppable library
+5. Include a ‘create new session’ button
+6. Be able to full screen the SessionScreen so that all four videos take up the full screen (may be a task for future iterations instead)
+
+____________________________
+
+ 
+
