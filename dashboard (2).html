@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+  <title>Bubble Charts Practice</title>
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+  <style>
+
+    * {
+      font-family: avenir;
+    }
+
+    .clearfix:before, 
+    .clearfix:after {
+      content: " ";
+      display: table; 
+    }
+    .clearfix:after {
+      clear: both; 
+    }
+    .clearfix {
+      *zoom: 1; 
+    }    #nav {
+      position: relative;
+    }
+
+    #workspace {
+      position: relative;
+    }
+
+    .blue:link, 
+    .blue:visited {
+      color: #1fa2d6;
+    }
+
+    .blue:hover {
+      color: #f2f2f2;
+    }
+
+    .node:hover {
+      cursor: move;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="clearfix">
+
+    <nav id="nav" class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand blue" href="#">LEARNING MEDIA</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li class="blue"><a href="#">Dashboard</a></li>
+            <li class="blue"><a href="#">Settings</a></li>
+            <li class="blue"><a href="#">Profile</a></li>
+            <li class="blue"><a href="#">Help</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    
+    <div id="workspace" class="selected">
+      <p style="position: absolute; display: inline-block; margin-left: 10px; font-size: 30px;">YOUR WORLD</p>
+      <p style="position: absolute; display: inline-block; margin-left: 600px; font-size: 30px;">UNIVERSE</p>
+    </div>
+
+  </div>
+
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.11.2/jquery-ui.min.js"></script>
+	<script>
+	  var universe_json = {"name":"Content","children":[{"name":"NEWS","children":[{"name":"nytimes","publisher":"nytimes","description":"Where the conversation begins. Follow for breaking news, special reports, http://NYTimes.com homepage links and RTs of our journalists.","date":"8.47659974778071"},{"name":"huffington post","publisher":"huffington post","description":"We are dedicated to maintaining a respectful community that actively engages in lively discussions about news stories and blog posts. Please keep the following in mind when writing your comments.","date":"9.538783644791692"},{"name":"bloomberg business","publisher":"bloomberg business","description":"Welcome to the official Bloomberg TV YouTube page, featuring the latest global business and markets news, as well as exclusive interviews.For more videos visit: http://www.bloomberg.com/video/LIVE STREAM Bloomberg TV here: http://bloomberg.com/tv","date":"2.0259896216448396"},{"name":"vlogbrothers","publisher":"vlogbrothers","description":"Raising nerdy to the power of awesome.","date":"6.871673073619604"},{"name":"espn","publisher":"espn","description":"The Worldwide Leader in Sports","date":"9.006830327911302"},{"name":"nickelodeon","publisher":"nickelodeon","description":"The official YouTube channel of Nickelodeon USA!Nickelodeon, now in its 35th year, has been the number-one entertainment brand for kids with its wide range of original cartoons, sitcoms, feature films, award shows and more! From popular series like Spongebob Squarepants, Teenage Mutant Ninja Turtles, Breadwinners, and Sam & Cat, to online games, apps, and radio on nick.com, this is the place for quality content and fun!","date":"3.391177300363779"}]},{"name":"YOUTUBE","children":[{"name":"MITOpenCourseWare","publisher":"MITOpenCourseWare","description":"The mission of MIT is to advance knowledge and educate students in science, technology, and other areas of scholarship that will best serve the nation and the world in the 21st century.The Institute is committed to generating, disseminating, and preserving knowledge, and to working with others to bring this knowledge to bear on the world's great challenges. MIT is dedicated to providing its students with an education that combines rigorous academic study and the excitement of discovery with the support and intellectual stimulation of a diverse campus community. We seek to develop in each member of the MIT community the ability and passion to work wisely, creatively, and effectively for the betterment of humankind.","date":"4.233011058997363"},{"name":"MinutePhysics","publisher":"MinutePhysics","description":"Simply put: cool physics and other sweet science.\t'If you can't explain it simply, you don't understand it well enough.'~Rutherford via Einstein? (wikiquote) Created by Henry Reich","date":"9.417242295807227"},{"name":"ArtAnimationMusic","publisher":"ArtAnimationMusic","description":"This channel is all about art and animation !If you are an up-growing artist, is not getting the proper youtube exposure and wants the world to see your talent!Send up your videos showcasing your skills, if the admin likes it, your video will be uploaded here in front of 5000+ subscribers !Message the link to your video to me on youtube !","date":"5.559903693385422"}]},{"name":"MOVIE","children":[{"name":"Dreamworks","publisher":"Dreamworks","description":"DreamWorks Studios also known as DreamWorks SKG, DreamWorks Pictures, or simply DreamWorks, is an American film production company which produces and develops films, television programming, and video games.","date":"7.9218917661346495"},{"name":"Pixar","publisher":"Pixar","description":"Pixar Animation Studios, or simply Pixar, is an American computer animation film studio based in Emeryville, California. ","date":"7.545356089714915"},{"name":"Disney","publisher":"Disney","description":"The Walt Disney Company, commonly known as Disney, is an American diversified multinational mass media corporation headquartered at the Walt Disney Studios in Burbank, California. ","date":"5.6230471536982805"},{"name":"NBC","publisher":"NBC","description":"The National Broadcasting Company is an American commercial broadcast television and radio network. It is headquartered in the Comcast Building in New York City's Rockefeller Center, with additional major offices near Los Angeles and in Chicago.","date":"7.335883128223941"}]},{"name":"SERIES","children":[{"name":"Spongebob Squarepants","publisher":"Spongebob Squarepants","description":"A square yellow sponge named SpongeBob SquarePants lives in a pineapple with his pet snail, Gary, in the city of Bikini Bottom on the floor of the Pacific Ocean. ","date":"9.500521363224834"},{"name":"Brooklyn Nine-Nine","publisher":"Brooklyn Nine-Nine","description":"Detective Jake Peralta, a talented and carefree cop with the best arrest record, has never had to follow the rules too closely or work very hard. ","date":"4.360569855896756"},{"name":"Rick and Morty","publisher":"Rick and Morty","description":"After having been missing for nearly 20 years, Rick Sanchez suddenly arrives at daughter Beth's doorstep to move in with her and her family. ","date":"4.127959182951599"}]},{"name":"SPORTS","children":[{"name":"Tennis","publisher":"Tennis","description":"Wawrinka Wins Rotterdam Title","date":"4.876917619723827"},{"name":"Soccer","publisher":"Soccer","description":"Ozil, Cazorla, Giroud Lead Arsenal","date":"6.751433706609532"},{"name":"Boxing","publisher":"Boxing","description":"Brandon AdamsAdams Advances To Semis","date":"9.77679828577675"},{"name":"Chess","publisher":"Chess","description":"Magnus Carlsen Retains the World Champion's title","date":"8.535162843763828"}]},{"name":"INSTRUCTIONAL","children":[{"name":"BollyX","publisher":"BollyX","description":"BOLLYX is a high intensity Bollywood cardio workout that's coming to a gym near you. Move to the heart pumping beats of Bollywood, get ready to feel that muscle burn and unleash your inner swagger.","date":"2.241373935015872"},{"name":"Khan Academy","publisher":"Khan Academy","description":"Our mission to provide a world-class education for anyone, anywhere.All Khan Academy content is available for free at www.khanacademy.org.","date":"9.460230168653652"},{"name":"Instructables","publisher":"Instructables","description":"Instructables is a place that lets you explore, document, and share your DIY maker creations.Explore. Share. Make.","date":"6.01369353570044"}]},{"name":"FOREIGN","children":[{"name":"Crayon Shin-Chan","publisher":"Crayon Shin-Chan","description":"Crayon Shin-chan (クレヨンしんちゃん, Kureyon Shin-chan), also known as Shin Chan, is a Japanese manga series written and illustrated by Yoshito Usui.","date":"7.434235424501821"},{"name":"Old Boy","publisher":"Old Boy","description":"After being kidnapped and imprisoned for 15 years, Oh Dae-Su is released, only to find that he must find his captor in 5 days.","date":"8.075719101820141"},{"name":"Sound of the Desert","publisher":"Sound of the Desert","description":"Sound of the Desert is a 2014 Chinese television series based on the historical romance novel Ballad of the Desert by Tong Hua.","date":"9.969717105850577"}]}]}
+
+		var diameter = 700,
+		  format = d3.format(",d"),
+		  color = d3.scale.category20c();
+	  var bubble = d3.layout.pack()
+	    .sort(null)
+	    .size([diameter, diameter])
+	    .padding(1.5);
+
+	  var svg = d3.select("#workspace").append("svg")
+	  	.attr("text-align", "center")
+	    .attr("class", "bubble")
+	    .attr("viewBox", "0 0 1300 700");
+
+	  svg.append("path")
+	    .attr("id", "divider")
+	  	.attr("d", "M 500 0 V 680")
+	  	.attr("fill", "black")
+	  	.attr("stroke", "black")
+	  	.attr("stroke-linecap", "round");
+
+	  var node = svg.selectAll(".node")
+	    .data(bubble.nodes(classes(universe_json))
+	      .filter(function(d) { return !d.children; }))
+	    .enter().append("g")
+	      .attr("class", "node")
+	      .attr("transform", function(d) { return "translate(" + parseInt(d.x + 500) + "," + parseInt(d.y)+")"; });
+	          
+	  node.append("title")
+	    .text(function(d) { return d.className + ": " + format(d.value); });
+	  var circle = node.append("circle")
+	    .attr("r", function(d) { return d.r; })
+	      .style("fill", function(d) { return color(d.packageName); });
+	  node.append("text")
+	    .attr("dy", ".3em")
+	      .style("text-anchor", "middle")
+	      .text(function(d) { console.log(d); return d.className.substring(0, d.r / 3); })
+	      .style("font-size", function(d) {return d.r/7; });
+
+	  node.append("pattern")
+	  	.attr("id", function(d, i) {return "image" + i;})
+	  	.attr("x", "0")
+	  	.attr("y", "0")
+	  	.attr("height", function(d) {return 2*d.r})
+	  	.attr("width",function(d) {return 2*d.r})
+	  .append("image")
+	  	.attr("x", "0")
+	  	.attr("y", "0")
+	  	.attr("height", function(d) {return 2*d.r})
+	  	.attr("width",function(d) {return 2*d.r})
+	  	.attr("xlink:href", "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQ6DrfcLRbSmv-wxiJYDC7MWpQA6TJcXzJNfSm4Rc96uUXCcjThnQ");
+	  	circle.on("mouseover", function(){
+             d3.select(this)
+                 .style("fill", function(d, i) {return "url(#image"+i+")";});
+       })
+        .on("mouseout", function(){ 
+             d3.select(this)
+                 .style("fill", function(d) {return color(d.packageName);});
+       });
+
+	  //node.call(drag);
+
+	  var selection = d3.selectAll( '.selected');
+
+	  var x_original = y_original = undefined;
+
+		var world_height = 50;	  
+
+	  var drag = d3.behavior.drag()
+	    .on("dragstart", function(d, i) {
+	    	clone = svg.node().appendChild(this.cloneNode(true));
+	    	return clone;
+	    })
+		  .on("drag", function( d, i) {
+		    if( selection[0].indexOf(this)==-1) {
+		      selection.classed( "selected", false);
+		      selection = d3.select( this);
+		      selection.classed( "selected", true);
+		    }
+
+		    if (x_original == undefined && y_original == undefined) {
+		      x_original = d.x;
+		      y_original = d.y;
+		    };
+		    
+		    selection.attr("transform", function( d, i) {
+		      d.x += d3.event.dx;
+		      d.y += d3.event.dy;
+		      return "translate(" + [ parseInt(d.x+500), parseInt(d.y) ] + ")"
+		    })
+		    this.parentNode.appendChild(this);
+		    //d3.event.sourceEvent.stopPropagation();
+		  })
+		  .on("dragend", function( d, i) {
+		  	var node_dragged = d3.select(this);
+		  	console.log(d);
+		  	console.log(node_dragged);
+		    if (d.x < 250) {
+					node_dragged.attr("transform", "translate(" + parseInt(125) + "," + parseInt(world_height+d.r) + ")");		
+					world_height += 2*d.r;    
+		    }
+		    else {
+		    	console.log("revert to ("+x_original+","+y_original+")");
+		    	node_dragged.attr("transform", "translate(" + parseInt(x_original) + "," + parseInt(y_original) + ")");
+		    }
+		    if (world_height > 700) {
+		    	svg.attr("viewBox", "0 0 1300 " + parseInt(world_height));
+		    	$("#divider").attr("d", "M 500 0 V " + (world_height-10));
+		    }		    
+	  	});
+
+	  node.call( drag );
+
+
+	  // Returns a flattened hierarchy containing all leaf nodes under the root.
+
+	  function classes(root) {
+	      var classes = [];
+	      function recurse(name, node) {
+	          if (node.children) {node.children.forEach(function(child) { recurse(node.name, child); });}
+	          else{
+	              //console.log("name: "+name);
+	              //console.log(node.name);
+	              //console.log(node.date);
+	              classes.push({packageName: name.toUpperCase(), className: node.name.toUpperCase(), value: node.date});}
+	      }
+	      recurse(null, root);
+	      return {children: classes};
+	  }
+	  d3.select(self.frameElement).style("height", diameter + "px");
+
+	</script>
+</body>
+</html>  
