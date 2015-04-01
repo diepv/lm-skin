@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Custom Video Player</title>
+	<style>
+    * {
+      font-family: avenir;
+    }
+    .clearfix:before, 
+    .clearfix:after {
+      content: " ";
+      display: table; 
+    }
+    .clearfix:after {
+      clear: both; 
+    }
+    .clearfix {
+      *zoom: 1; 
+    }    #nav {
+      position: relative;
+    }	
+
+		h1 { 
+			font-size:16px;
+			color:#333;
+		}
+
+    button {
+      height: 20px;
+      width: 55px;
+      vertical-align: middle;
+      margin: 0 auto;
+    }
+
+		#player1 {
+			float:left;
+			padding:1em 1em .5em;
+		}
+
+		video {
+			border:1px solid #2e52a4;
+			width:305px;
+			height:160px;
+			background:#000;
+		}  
+	</style>
+	<script src="jquery.js"></script>	
+</head>
+<body>
+
+	<div class="clearfix">
+    <h1>Custom Youtube Video Player</h1>
+    <div id="player1"></div>
+    <div id="media-controls" style="display: inline-block; margin-left: 10px;">
+      Start time (in seconds): 
+      <form>
+        <input id="seek-to" type="text" placeholder=" " maxlength="5" onkeypress="return (event.charCode >= 48 && event.charCode <= 57)" autofocus value="0"/>
+        <button id="submit" type="button">Submit</button>
+      </form>
+    </div>    
+	</div>
+
+<script>
+
+var Submitted = false;
+
+var tag = document.createElement('script');
+
+tag.src = "https://www.youtube.com/iframe_api";
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+var player;
+function onYouTubeIframeAPIReady() {
+  console.log("YouTube iframe API is ready");
+  player = new YT.Player('player1', {
+    height: '315',
+    width: '560',
+    videoId: 'MhJK6CV8oeo',
+    events: {
+      'onReady': onPlayerReady,
+      'onStateChange': onPlayerStateChange
+    }
+  });
+}
+
+function onPlayerReady(event) {  
+  console.log("player is ready");  
+  $("#submit").click(function() {
+    Submitted = !Submitted;
+    console.log("seek to value submitted! (is submitted = " + Submitted + ")");
+    console.log("seek to " + document.getElementById("seek-to").value);
+    player.seekTo(document.getElementById("seek-to").value, false);   
+    player.playVideo();     
+  });     
+}
+
+var done = false;
+function onPlayerStateChange(event) {
+  if (event.data == YT.PlayerState.PLAYING && !done) {
+    setTimeout(stopVideo, 6000);
+    done = true;
+  }
+}
+function stopVideo() {
+  player.stopVideo();
+}  
+
+</script>
+</body>
+</html>
