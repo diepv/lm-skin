@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Custom Video Player</title>
+	<style>
+    * {
+      font-family: avenir;
+    }
+    .clearfix:before, 
+    .clearfix:after {
+      content: " ";
+      display: table; 
+    }
+    .clearfix:after {
+      clear: both; 
+    }
+    .clearfix {
+      *zoom: 1; 
+    }    #nav {
+      position: relative;
+    }	
+
+		h1 { 
+			font-size:16px;
+			color:#333;
+		}
+
+    button {
+      height: 20px;
+      width: 55px;
+      vertical-align: middle;
+      margin: 0 auto;
+    }
+
+    #prev_player {
+      display: inline-block;
+    }
+
+		#curr_player {
+			display: inline-block;
+		}
+
+    #next_player {
+      display: inline-block;
+    }
+
+    #media-controls {
+      display: block;
+      margin-left: 10px;
+    }
+
+    .controls {
+      display: block;
+      margin-left: 15px;
+      margin-bottom: 10px;
+    }
+
+	</style>
+	<script src="jquery.js"></script>	
+  <script src="socket.io.js"></script>
+  <script>
+    var socket = io('http://localhost:8000');
+    socket.on('connect', function(){});
+    socket.on('event', function(data){});
+    socket.on('disconnect', function(){});
+  </script>
+</head>
+<body>
+
+	<div class="clearfix">
+    <h1>Custom Youtube Video Player</h1>    
+    <div id="media-controls">
+      <div class="controls">
+        Start time (in seconds): 
+        <form>
+          <input id="seek-to" type="text" placeholder=" " maxlength="5" onkeypress="return (event.charCode >= 48 && event.charCode <= 57)" autofocus/>
+          <button id="submit-seek-to" type="button">Submit</button>
+        </form>
+      </div>
+      <div class="controls">
+        End time (in seconds):
+        <form>
+          <input id="stop-at" type="text" placeholder=" " maxlength="5" onkeypress="return (event.charCode >= 48 && event.charCode <= 57)" autofocus/>
+          <button id="submit-stop-at" type="button">Submit</button>
+        </form>
+      </div>
+    </div>     
+    <div id="prev_player"></div>
+    <div id="curr_player"></div>
+    <div id="next_player"></div>   
+	</div>
+
+<script>
+
+var tag = document.createElement('script');
+
+tag.src = "https://www.youtube.com/iframe_api";
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+var queue = ['MhJK6CV8oeo', 'kMhw5MFYU0s', 'h-0HRs0FY2U', '0Bmhjf0rKe8'];
+var counter = 0;
+
+var curr_player, prev_player, next_player;
+function onYouTubeIframeAPIReady() {
+  console.log("YouTube iframe API is ready");
+  curr_player = new YT.Player('curr_player', {
+    videoId: queue[counter],
+    events: {
+      'onReady': onPlayerReady,
+      'onStateChange': onPlayerStateChange
+    }
+  });
+  next_player = new YT.Player('next_player', {
+    videoID: queue[counter++],
+    events: {
+      'onReady': onPlayerReady,
+      'onStateChange': onPlayerStateChange        
+    }
+  });
+}
+
+var Submitted = false;
+function onPlayerReady(event) {  
+  console.log("player is ready");  
+  getDuration();
+  $("#submit-seek-to").click(function() {
+    Submitted = !Submitted;
+    console.log("seek to " + document.getElementById("seek-to").value);
+    curr_player.seekTo(document.getElementById("seek-to").value, false);   
+    curr_player.playVideo();     
+  });     
+  $("#submit-stop-at").click(function() {
+    console.log("stop at " + document.getElementById("stop-at").value);
+    setTimeout(stopVideo, 1000*document.getElementById("stop-at").value);
+    curr_player.playVideo();
+  });
+}
+
+function getDuration() {
+  var duration;
+  if (curr_player) {
+    duration = curr_player.getDuration()-1;
+  }
+  console.log("duration of video is: " + duration + " seconds");
+}
+
+var Done = false;
+function onPlayerStateChange(event) {
+  if (event.data == YT.PlayerState.ENDED || Done) {
+    prev_player = new YT.Player('prev_player', {
+      videoId: queue[counter],
+      events: {
+        'onReady': onPlayerReady,
+        'onStateChange': onPlayerStateChange
+      }
+    });
+    counter += 1;  
+    if (counter > queue.length) {
+      counter = 0;
+    }
+  curr_player = new YT.Player('curr_player', {
+    videoId: queue[counter],
+    events: {
+      'onReady': onPlayerReady,
+      'onStateChange': onPlayerStateChange
+    }
+  });
+  next_player = new YT.Player('next_player', {
+    videoID: queue[counter++],
+    events: {
+      'onReady': onPlayerReady,
+      'onStateChange': onPlayerStateChange        
+    }
+  });
+  }
+}
+function stopVideo() {
+  curr_player.stopVideo();
+  Done = true;
+}  
+
+</script>
+</body>
+</html>
