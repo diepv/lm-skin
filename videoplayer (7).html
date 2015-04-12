@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Custom Video Player</title>
+  <style>
+    * {
+      font-family: avenir;
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box; 
+    }
+
+    body {
+      width: 100%;
+      height: 100%;
+    }
+
+    .container {
+      width: 840px;
+      margin: 0 auto;
+      border-left: solid black;
+      border-right: solid black;
+    }
+
+    .clearfix:before, 
+    .clearfix:after {
+      content: " ";
+      display: table; 
+    }
+    .clearfix:after {
+      clear: both; 
+    }
+    .clearfix {
+      margin-left: 10px;
+      *zoom: 1; 
+    }    #nav {
+      position: relative;
+    } 
+
+    h1 { 
+      font-size:30px;
+      color:#333;
+    }
+
+    button {
+      height: 20px;
+      width: auto;
+      vertical-align: middle;
+      margin: 0 auto;
+    }
+
+    #player {
+      display: block;
+      margin: 0 auto;
+    }
+
+    .before-player {
+      margin: 0 auto;
+    }
+
+    #queue-info {
+      display: inline-block;
+      font-size: 16px;
+    }
+
+    #message {
+      display: block;
+    }
+
+    #queue-show {
+      display: block;
+      margin-left: 15px;
+    }
+
+    #queue-change {
+      display: block;
+      margin-left: 15px;
+      font-size: 14px;
+    }
+
+    #media-controls {
+      display: inline-block;
+      vertical-align: top;
+      margin-bottom: 10px;
+    }
+
+    .controls {
+      display: inline-block;
+      margin-left: 15px;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+  </style>
+  <script src="jquery.js"></script> 
+  <!--<script src="socket.io.js"></script>
+  <script>
+    var socket = io('http://localhost:8000');
+    socket.on('connect', function(){});
+    socket.on('event', function(data){});
+    socket.on('disconnect', function(){});
+  </script>-->
+</head>
+<body>
+
+  <div class="container">
+    <div class="clearfix">
+      <div class="before-player">
+        <h1>Custom Youtube Video Player</h1>  
+        <div id="queue-info">
+          <div id="message"></div>
+          <div id="queue-hide-show"></div>
+          <div id="status-of-player"></div>      
+        </div>
+        <div id="media-controls">
+          <div id="queue-change">
+            Video Number to Skip to:
+            <form>
+              <input id="change-queue" type="text" placeholder=" " maxlength="5" onkeypress="return (event.charCode >= 48 && event.charCode <= 57)" autofocus>
+              <button id="submit-change-queue" type="button">Change queue</button>
+            </form>
+            <br>
+          </div>      
+          <div class="controls">
+            Start time (in seconds): 
+            <form>
+              <input id="seek-to" type="text" placeholder=" " maxlength="5" onkeypress="return (event.charCode >= 48 && event.charCode <= 57)" autofocus>
+            </form>
+          </div>
+          <div class="controls">
+            End time (in seconds):
+            <form>
+              <input id="stop-at" type="text" placeholder=" " maxlength="5" onkeypress="return (event.charCode >= 48 && event.charCode <= 57)" autofocus>
+            </form>
+          </div>
+          <button id="submit" type="button">Submit</button>
+        </div> 
+      </div>  
+      <div id="player"></div> 
+    </div>
+  </div>
+
+<script>
+
+$(document).ready(function() {
+  document.getElementsByClassName("container").style.height = window.innerHeight;
+  document.getElementsByClassName("container").style.width = window.innerWidth;
+
+  $("#message").append("You have " + queue.length + " videos in your queue: ");
+  var button = document.createElement("button");
+  button.id = "show-hide-queue";
+  button.type = "button";
+  button.innerHTML = "Show queue";
+  $("#message").append("&nbsp;&nbsp;");
+  $("#message").append(button);
+  $("#message").append("<br><br>");
+
+  $("#show-hide-queue").click(function() {
+    showhideQueue(queue);
+    console.log("show-hide-queue button clicked");
+  });
+
+  document.getElementById("status-of-player").innerHTML = "You are watching video # " + parseInt(counter+1) + " out of " + queue.length + " videos in your queue.";   
+});
+
+var tag = document.createElement('script');
+
+tag.src = "https://www.youtube.com/iframe_api";
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+var queue = ['m6-Iedk5Vok', 'MhJK6CV8oeo', '0Bmhjf0rKe8', 'h-0HRs0FY2U'];
+var counter = 0;
+var player;
+
+function showhideQueue(queue) {
+  var viewqueue = "";   
+  if (document.getElementById("show-hide-queue").innerHTML == "Show queue") {     
+    console.log("queue showed"); 
+    for (i=0; i < queue.length; i++) {
+      viewqueue += "video id " + parseInt(i+1) + ": " + queue[i] + "<br>";
+    }
+    viewqueue += "<br>";
+    $("#queue-hide-show").append(viewqueue);
+    document.getElementById("show-hide-queue").innerHTML = "Hide queue";    
+  }
+  else if (document.getElementById("show-hide-queue").innerHTML == "Hide queue") {
+    console.log("queue hidden");
+    document.getElementById("queue-hide-show").innerHTML = viewqueue;
+    document.getElementById("show-hide-queue").innerHTML = "Show queue";
+  }
+}
+
+$("#submit-change-queue").click(function() {
+  if (1 <= document.getElementById("change-queue").value < queue.length) {
+    counter = document.getElementById("change-queue").value-1;
+    if (document.getElementById("change-queue").value != " ") {
+      player.cueVideoById(queue[parseInt(document.getElementById("change-queue").value)-1]);
+    }
+  }
+  document.getElementById("status-of-player").innerHTML = "You are watching video # " + parseInt(counter+1) + " out of " + queue.length + " videos in your queue.";  
+  document.getElementById("change-queue").value = "";
+  console.log("now playing video id " + queue[parseInt(document.getElementById("change-queue").value)-1]);
+});
+
+function onYouTubeIframeAPIReady() {
+  player = new YT.Player('player', {
+    videoId: queue[counter],
+    events: {
+      'onReady': onPlayerReady,
+      'onStateChange': onPlayerStateChange
+    }
+  });
+  console.log("YouTube iframe API is ready");  
+}
+
+var Submitted = false;
+var Done = false;
+var hh = "100%";
+var ww = "100%";
+$("#submit").click(function() {
+  Submitted = true;
+  videoStopped = false;
+  player.stopVideo();
+  if (document.getElementById("seek-to").value != "") {
+    player.seekTo(document.getElementById("seek-to").value, false);
+    console.log("player: ",$("#player"));
+    console.log("container: ",$(".container"));
+    document.getElementById("player").style.height = hh;
+    document.getElementById("player").style.width = ww;
+    player.playVideo();     
+    console.log("seek to " + document.getElementById("seek-to").value);      
+  }
+  else {
+    document.getElementById("seek-to").value = 0;
+  }
+  if (document.getElementById("stop-at").value != "") { 
+    player.playVideo();  
+    setTimeout(stopVideo, 1000*parseInt((document.getElementById("stop-at").value-document.getElementById("seek-to").value)+1));    
+    console.log("stop at " + document.getElementById("stop-at").value);   
+  }
+  Submitted = false;
+  if (videoStopped == true) {
+    console.log("stop-at is empty");
+    document.getElementById("stop-at").value = "";
+  }   
+  document.getElementById("status-of-player").innerHTML = "You are watching video # " + parseInt(counter+1) + " out of " + queue.length + " videos in your queue.";   
+});  
+
+function onPlayerReady(event) { 
+  console.log("player is ready");    
+  player.cueVideoById(queue[counter]);
+}
+
+function getDuration() {
+  var duration;
+  duration = player.getDuration();
+  console.log("duration of current video is: " + duration + " seconds");
+  return duration
+}
+
+function onPlayerStateChange(event) {  
+  document.getElementById("status-of-player").innerHTML = "You are watching video # " + parseInt(counter+1) + " out of " + queue.length + " videos in your queue.";  
+  if ( (event.data == YT.PlayerState.ENDED) ) {
+    Done = true;
+    getDuration(player);    
+    counter += 1;      
+    if (counter < queue.length) { 
+      console.log("video done");
+      player.cueVideoById(queue[counter]);
+      console.log($('#player').mozRequestFullScreen);
+      Submitted = false;
+      console.log("loading next video");
+      document.getElementById("seek-to").value = "";
+      document.getElementById("stop-at").value = "";
+    }
+    else {
+      console.log("no more videos in queue");
+      document.getElementById("player").style.display = "none";
+      document.getElementById("media-controls").style.display = "none";
+      document.getElementById("status-of-player").style.display = "none";      
+      document.getElementById("message").innerHTML = "No more videos in queue!";
+    } 
+  }
+}
+
+var videoStopped = false;
+function stopVideo() {
+  player.stopVideo();
+  videoStopped = true;
+  console.log("video stopped");
+  document.getElementById("stop-at").value = " ";
+}
+
+</script>
+</body>
+</html>
