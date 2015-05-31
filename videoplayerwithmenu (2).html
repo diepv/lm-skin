@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<style>
+    * {
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box; 
+    }
+
+    html, body {
+        font-family: avenir;        
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+    	width: 100%;
+    	margin: 0;
+    	padding: 0;
+    }
+
+    #title {
+        margin: 0;
+        padding: 0;
+        text-align: center;
+    }
+
+    .main {
+        position: absolute;
+    	width: 100%;
+    	height: 440px;
+    	margin: 0;
+    	padding: 0;
+        background: #f2f2f2;
+    }
+
+    #recent {
+        text-align: center;
+        margin-top: 10px;
+        margin-left: 50px;
+        padding: 0;
+    }
+
+    .menu {
+        position: absolute;
+    	width: 100%;
+    	height: 170px;
+    	margin: 0;
+        top: 429px;
+    	padding: 0;
+        white-space: nowrap;
+    	border-top: 3px solid #1fa2d6;
+    	background: #f2f2f2;
+    }
+
+    #slider {
+    	float: left;
+    	margin-right: -999em;    	
+    	white-space: nowrap; 	
+    	list-style: none;
+    }
+
+    #slider li {
+    	display: inline;
+    	text-align: center;
+    	margin: 10px 30px;
+        border: 2px solid #1fa2d6;
+    	float: left;
+    }
+    #slider li:first-of-type {
+        margin-left: 5px;
+    }
+	</style>
+    <script type="text/javascript" src="jquery.js"></script>
+    <script src="https://apis.google.com/js/client.js?onload=init"></script>
+    <script type="text/javascript" src="nicescroll.min.js"></script>
+</head>
+<body>
+	<div class="container">
+
+		<div class="main">
+			<div class="container">
+
+                <h1 id="title">
+                    <span style="color: #1fa2d6">Learning</span> Media
+                </h1>
+
+                <div id="recent">
+                    <div class="container">
+
+                        <div id="the-player">
+                        </div>
+
+                    </div>
+                </div>
+
+			</div>
+		</div>
+
+		<div class="menu">
+			<div class="container">
+
+				<ul id="slider">
+				</ul>
+
+			</div>
+		</div>
+
+	</div>
+    <script type="text/javascript">
+    var tag = document.createElement('script');
+
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    var counter = 0;
+    var player;
+
+    var seekTo = 0
+
+    var queue = ['yltlJEdSAHw', 'MhJK6CV8oeo', '0Bmhjf0rKe8', 'h-0HRs0FY2U', 'GLlpi-0_lB0', 'C0Z1C83B_Wc', 'WwoKkq685Hk', 'lAXTOP9a4Fw'];
+
+    function getThumbnail(i) {
+      return "http://img.youtube.com/vi/" + queue[i] + "/1.jpg"
+    }
+
+    function changeVideo(id) {
+        player.loadVideoById(queue[id]);
+        counter = parseInt(id);
+        var newId = parseInt(id) + 1;
+        console.log("changing video to video " + (parseInt(id)+1).toString());
+    }    
+
+    for (i = 0; i < queue.length; i++) {
+        var thumbnail = "";
+        thumbnail += "<li><button id=" + i + " onclick='changeVideo(this.id)'><img src=" + getThumbnail(i) + "></button></li>";
+        $("#slider").append(thumbnail);
+    }  
+
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('the-player', {
+        // height: "100%",
+        // width: "100%",
+        videoId: queue[counter],
+        playerVars: {rel: 0, autoplay: 1},
+        events: {
+          'onReady': onPlayerReady,
+          'onStateChange': onPlayerStateChange
+        }
+      });
+      console.log("YouTube iframe API is ready");
+    } 
+
+    function onPlayerReady(event) { 
+      console.log("player is ready");    
+      player.loadVideoById(queue[counter], seekTo);
+    }          
+
+    function onPlayerStateChange(event) {  
+      if ( (event.data == YT.PlayerState.ENDED) ) {
+        counter += 1;      
+        if (counter < queue.length) { 
+          player.loadVideoById(queue[counter]);
+          console.log("changing video to video " + parseInt(counter+1).toString());
+        }
+        else {
+          console.log("no more videos in queue");  
+          document.getElementById("the-player").innerHTML = "No more videos in queue!";
+        } 
+      }
+    }    
+
+    $(document).ready(function() {
+        $(".menu").niceScroll({mousescrollstep:20, hidecursordelay: 200, scrollspeed: 40, cursorwidth: 10, cursorcolor: "#1fa2d6", cursoropacitymax: .7, cursoropacitymin: .2});
+        });
+        $(".menu").style.marginBottom = '-10px';
+    </script>
+</body>
+</html>
