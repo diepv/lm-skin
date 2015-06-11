@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<style>
+	  * {
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box; 
+    }
+
+    html, body {
+        font-family: avenir;        
+        margin: 0;
+        padding: 0;
+    }
+
+    .clearfix:after {
+    	clear: both;
+    }
+
+    .container {
+    	width: 100%;
+    	height: 100%;
+    	margin: 0;
+    	padding: 0;
+    }    
+
+    #canvas {
+    	position: absolute;
+    	margin: 10%;
+    	-webkit-transform: scale(1.8);
+    }
+	</style>	
+	<script type="text/javascript" src="jquery.js"></script>
+	<script type="text/javascript" src="Snap.svg-0.4.1/dist/snap.svg-min.js"></script>
+</head>
+<body>
+
+	<div class="container clearfix">
+
+		<svg id="canvas"></svg>
+
+	</div>
+
+</body>
+<script type="text/javascript">
+var r = 100;
+
+dialCanvas = Snap("#canvas");
+dialCanvas.attr({
+	width: (2*(r+5)).toString(),
+	height: ((r+5)+5).toString()
+});
+
+var Circle = dialCanvas.circle(r+5, r+5, r);
+Circle.attr({
+	fill: "#f2f2f2",
+	mask: clippingRect, littleCircle
+});
+
+var ticks = [];
+for (var i = 0; i <= 10; i++) {
+	ticks[i] = dialCanvas.line(r+5, r+5, r+5-(r+7)*Math.cos(i*Math.PI/10), r+5-(r+7)*Math.sin(i*Math.PI/10));
+}
+
+dialTicks = dialCanvas.g();
+for (var i = 10; i >=0; i--) {
+	dialTicks.add(ticks[i]);
+}
+dialTicks.addClass("dial-ticks");
+dialTicks.attr({
+	stroke: "#000"
+});
+
+var littleCircle = dialCanvas.circle (r+5, r+5, r-10);
+littleCircle.attr({
+	fill: "#f2f2f2"
+});
+
+var clippingRect = dialCanvas.rect(5, (r+5)+1, 2*r+5, (r+5)-1);
+clippingRect.attr({
+	fill: "#fff"
+});
+
+var Needle = dialCanvas.line(r+5, r+5, r+5, 5);
+Needle.attr({
+	stroke: "#1fa2d6",
+	strokeWidth: 2
+});
+
+dialMasks = dialCanvas.g();
+dialMasks.add(littleCircle, clippingRect);
+dialMasks.addClass("dial-masks");
+
+dial = dialCanvas.g();
+dial.add(Circle, dialTicks, dialMasks, Needle);
+dial.attr({
+	id: "srs-dial"
+});
+
+dial.drag(function(dx, dy, x, y){
+    function checkIndex() {
+        temp_index = Math.round(((Math.abs(r+5-x)+dx)-5)/20);
+        if (temp_index < 0) {
+            index == 0;
+        }
+        else if (temp_index > 10) {
+            index == 10;
+        }
+        else if (0 <= temp_index <= 10) {
+            index = Math.round(((Math.abs(r+5-x)+dx)-5)/20);
+        }
+        return index
+    }
+    theta = (checkIndex()*Math.PI/10);
+    Needle.attr({
+        x2: r+5 - r*Math.cos(theta),
+        y2: r+5 - r*Math.sin(theta)
+    });
+}, function() {
+    x = Needle.attr("x2");
+    y = Needle.attr("y2");
+}, function() {});
+
+</script>
+</html>
