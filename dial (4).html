@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<style>
+	  * {
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box; 
+    }
+
+    html, body {
+        font-family: avenir;        
+        margin: 0;
+        padding: 0;
+    }
+
+    .clearfix:after {
+    	clear: both;
+    }
+
+    .container {
+    	width: 100%;
+    	height: 100%;
+    	margin: 0;
+    	padding: 0;
+    }    
+
+    #canvas {
+    	position: absolute;
+    	margin: 10%;
+    	-webkit-transform: scale(1.8);
+    }
+	</style>	
+	<script type="text/javascript" src="jquery.js"></script>
+	<script type="text/javascript" src="Snap.svg-0.4.1/dist/snap.svg-min.js"></script>
+</head>
+<body>
+
+	<div class="container clearfix">
+
+		<svg id="canvas"></svg>
+
+	</div>
+
+</body>
+<script type="text/javascript">
+
+var r = 105;
+var numticks = 10;
+
+
+dialCanvas = Snap("#canvas");
+dialCanvas.attr({
+	width: (2*(r+5)).toString(),
+	height: ((r+5)+10).toString()
+});
+
+var Circle = dialCanvas.circle(r+5, r+5, r);
+Circle.attr({
+	fill: "#f2f2f2",
+	mask: littleCircle, clippingRect
+});
+
+var ticks = [];
+for (var i = 0; i <= numticks; i++) {
+	ticks[i] = dialCanvas.line(r+5, r+5, r+5-(r+2)*Math.cos(i*Math.PI/numticks), r+5-(r+2)*Math.sin(i*Math.PI/numticks));
+}
+
+dialTicks = dialCanvas.g();
+for (var i = numticks; i >=0; i--) {
+	dialTicks.add(ticks[i]);
+}
+dialTicks.addClass("dial-ticks");
+dialTicks.attr({
+	stroke: "#000"
+});
+
+var littleCircle = dialCanvas.circle (r+5, r+5, r-10);
+littleCircle.attr({
+	fill: "#f2f2f2"
+});
+
+var clippingRect = dialCanvas.rect(5, (r+5)+1, 2*r, 1);
+clippingRect.attr({
+	fill: "#f2f2f2"
+});
+
+var Needleline = dialCanvas.line(r+5, r+5, r+5, 25);
+Needleline.attr({
+    stroke: "#1fa2d6",
+    strokeWidth: 2
+});
+
+var Needleknob = dialCanvas.circle(r+5, r+5-(r-30), 5);
+Needleknob.attr({
+    fill: "#f2f2f2",
+    stroke: "#1fa2d6"
+});
+
+var NeedleLittleCircle = dialCanvas.circle(r+5, r+5, r-25);
+NeedleLittleCircle.attr({
+    fill: "#f2f2f2"
+});
+
+Needle = dialCanvas.g();
+Needle.add(Needleline, NeedleLittleCircle, clippingRect);
+
+var labels = [];
+var text = [];
+for (var i = 0; i <= numticks; i++) {
+    text[i] = i.toString();
+}
+for (var i = 0; i <= numticks; i++) {
+    labels[i] = dialCanvas.text(r+2-(r-16)*Math.cos(i*Math.PI/numticks), r+6-(r-16)*Math.sin(i*Math.PI/numticks), text[i]);
+}
+var title = "Seriousness";
+var titleText = dialCanvas.text(r-20, r+5, title);
+titleText.attr({
+    fontSize: "10px",
+    fontWeight: "bold",
+    fill: "#1fa2d6"
+});
+
+dialLabels = dialCanvas.g();
+for (var i = numticks; i >=0; i--) {
+    dialLabels.add(labels[i]);
+}
+dialLabels.addClass("dial-labels");
+dialLabels.attr({
+    fontSize: "5px"
+});
+
+
+dialMasks = dialCanvas.g();
+dialMasks.add(littleCircle, clippingRect);
+dialMasks.addClass("dial-masks");
+
+dial = dialCanvas.g();
+dial.add(Circle, dialTicks, dialMasks, Needle, clippingRect, Needleknob, dialLabels, titleText);
+dial.attr({
+	id: "srs-dial"
+});
+
+Needleknob.drag(function(dx, dy, x, y){
+    function checkIndex() {
+        temp_index = Math.round(((Math.abs(r+5-x)+dx)-5)/(3*numticks));
+        if (temp_index < 0) {
+            index == 0;
+        }
+        else if (temp_index > numticks) {
+            index == numticks;
+        }
+        else if (0 <= temp_index <= numticks) {
+            index = Math.round(((Math.abs(r+5-x)+dx)-5)/(3*numticks));
+        }
+        return index
+    }
+    theta = (checkIndex()*Math.PI/numticks);
+    Needleline.attr({
+        x2: r+5 - (r-20)*Math.cos(theta),
+        y2: r+5 - (r-20)*Math.sin(theta)
+    });
+    Needleknob.attr({
+        cx: r+5 - (r-30)*Math.cos(theta),
+        cy: r+5 - (r-30)*Math.sin(theta)
+    });
+}, function() {
+    donedragging = false;
+    x = Needleline.attr("x2");
+    y = Needleline.attr("y2");
+}, function() {
+    donedragging = true;
+    dialValue = Math.abs(index);
+    console.log(text[dialValue]);
+});
+
+$(document).ready(function() {
+    donedragging = false;
+    dialValue = 5;
+});
+
+</script>
+</html>
